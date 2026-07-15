@@ -1,0 +1,6 @@
+.worktrees/
+.DS_Store
+node_modules/
+travel-backup-*.json
+.playwright-cli/
+output/playwright/
