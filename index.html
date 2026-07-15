@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4efe4">
+  <meta name="description" content="2026 環球旅行行程管理網站">
+  <title>2026 環球旅行</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23b85f24'/%3E%3Cpath d='M16 18h32v28H16z' fill='%23fffdf8'/%3E%3Cpath d='M22 13v10M42 13v10M16 27h32' stroke='%2320241f' stroke-width='4'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./assets/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">跳至主要內容</a>
+
+  <header class="app-header">
+    <div class="header-copy">
+      <p class="eyebrow">Travel field notes</p>
+      <h1 id="trip-title">2026 環球旅行</h1>
+      <p id="trip-meta" class="trip-meta">載入行程中…</p>
+    </div>
+    <button class="icon-button" id="quick-export" type="button" aria-label="匯出完整備份" title="匯出備份">
+      <span aria-hidden="true">⇩</span>
+    </button>
+  </header>
+
+  <main id="main-content" class="app-main" tabindex="-1">
+    <section class="view is-active" data-view="itinerary" aria-labelledby="itinerary-heading">
+      <div class="section-heading">
+        <div>
+          <p class="section-kicker">Daily route</p>
+          <h2 id="itinerary-heading">每日行程</h2>
+        </div>
+        <button class="secondary-button" id="jump-today" type="button">前往今天</button>
+      </div>
+
+      <div id="region-filters" class="filter-row" aria-label="依區域篩選"></div>
+      <div id="timeline" class="timeline" aria-live="polite"></div>
+    </section>
+
+    <section class="view" data-view="lodging" aria-labelledby="lodging-heading" hidden>
+      <div class="section-heading">
+        <div>
+          <p class="section-kicker">Stay</p>
+          <h2 id="lodging-heading">住宿</h2>
+        </div>
+      </div>
+      <p class="privacy-note">地址、費用與訂位編號只儲存在此裝置。</p>
+      <div id="lodging-list" class="collection-list"></div>
+    </section>
+
+    <section class="view" data-view="bookings" aria-labelledby="bookings-heading" hidden>
+      <div class="section-heading">
+        <div>
+          <p class="section-kicker">Move & reserve</p>
+          <h2 id="bookings-heading">交通票券</h2>
+        </div>
+      </div>
+      <div class="segmented-control" role="tablist" aria-label="交通票券分類">
+        <button class="segment is-active" type="button" data-booking-kind="transport" role="tab" aria-selected="true">交通</button>
+        <button class="segment" type="button" data-booking-kind="tickets" role="tab" aria-selected="false">門票</button>
+      </div>
+      <div id="booking-list" class="collection-list"></div>
+    </section>
+
+    <section class="view" data-view="tasks" aria-labelledby="tasks-heading" hidden>
+      <div class="section-heading">
+        <div>
+          <p class="section-kicker">Before departure</p>
+          <h2 id="tasks-heading">待辦事項</h2>
+        </div>
+      </div>
+      <div id="task-progress" class="progress-summary"></div>
+      <div id="task-list" class="task-list"></div>
+    </section>
+
+    <section class="view" data-view="settings" aria-labelledby="settings-heading" hidden>
+      <div class="section-heading">
+        <div>
+          <p class="section-kicker">Data & privacy</p>
+          <h2 id="settings-heading">設定</h2>
+        </div>
+      </div>
+
+      <div class="settings-grid">
+        <article class="settings-card">
+          <h3>完整備份</h3>
+          <p>匯出檔會包含你在此裝置加入的私人住宿資料，請妥善保存。</p>
+          <div class="button-stack">
+            <button class="primary-button" id="export-data" type="button">匯出 JSON</button>
+            <button class="secondary-button" id="import-data" type="button">匯入 JSON</button>
+            <input id="import-file" type="file" accept="application/json,.json" hidden>
+          </div>
+        </article>
+
+        <article class="settings-card">
+          <h3>復原與重設</h3>
+          <p>可復原最近一次成功儲存前的版本，或清除本機修改並恢復公開初始行程。</p>
+          <div class="button-stack">
+            <button class="secondary-button" id="undo-save" type="button">復原上次修改</button>
+            <button class="danger-button" id="restore-defaults" type="button">恢復初始行程</button>
+          </div>
+        </article>
+
+        <article class="settings-card">
+          <h3>資料原則</h3>
+          <ul class="plain-list">
+            <li>公開 GitHub 資料不含地址、價格或訂位編號。</li>
+            <li>修改內容自動保存在目前瀏覽器。</li>
+            <li>網站沒有帳號、Cookie 或追蹤程式。</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <button class="fab" id="add-day" type="button" aria-label="新增一天行程">＋</button>
+
+  <nav class="bottom-nav" aria-label="主要功能">
+    <button class="nav-item is-active" type="button" data-target="itinerary" aria-current="page">
+      <span class="nav-icon" aria-hidden="true">路</span><span>行程</span>
+    </button>
+    <button class="nav-item" type="button" data-target="lodging">
+      <span class="nav-icon" aria-hidden="true">宿</span><span>住宿</span>
+    </button>
+    <button class="nav-item" type="button" data-target="bookings">
+      <span class="nav-icon" aria-hidden="true">票</span><span>交通票券</span>
+    </button>
+    <button class="nav-item" type="button" data-target="tasks">
+      <span class="nav-icon" aria-hidden="true">✓</span><span>待辦</span>
+    </button>
+    <button class="nav-item" type="button" data-target="settings">
+      <span class="nav-icon" aria-hidden="true">設</span><span>設定</span>
+    </button>
+  </nav>
+
+  <dialog id="day-editor" class="editor-dialog" aria-labelledby="editor-title">
+    <form id="day-form" method="dialog">
+      <div class="dialog-header">
+        <div>
+          <p class="section-kicker">Edit itinerary</p>
+          <h2 id="editor-title">編輯行程</h2>
+        </div>
+        <button class="icon-button" id="close-editor" type="button" aria-label="關閉編輯視窗">×</button>
+      </div>
+
+      <div class="form-grid">
+        <input id="day-id" name="id" type="hidden">
+        <label>日期<input id="day-date" name="date" type="date" required></label>
+        <label>區域
+          <select id="day-region" name="region" required>
+            <option>日本</option><option>歐洲</option><option>紐約</option><option>美西</option>
+          </select>
+        </label>
+        <label>國家<input id="day-country" name="country" required autocomplete="country-name"></label>
+        <label>城市<input id="day-city" name="city" required></label>
+        <label class="span-full">當日標題<input id="day-title" name="title" required></label>
+        <label>狀態
+          <select id="day-status" name="status">
+            <option value="confirmed">已確認</option>
+            <option value="unbooked">尚未預約</option>
+            <option value="flexible">彈性安排</option>
+            <option value="cancelled">取消</option>
+          </select>
+        </label>
+        <label class="span-full">時間軸
+          <textarea id="day-timeline" name="timeline" rows="6" placeholder="每行一項：09:00 | 活動 | 地點 | 備註"></textarea>
+          <small>格式：時間 | 活動 | 地點 | 備註</small>
+        </label>
+
+        <fieldset class="span-full">
+          <legend>住宿</legend>
+          <div class="form-grid">
+            <label class="span-full">住宿名稱<input id="lodging-name" name="lodgingName"></label>
+            <label>狀態
+              <select id="lodging-status" name="lodgingStatus">
+                <option value="confirmed">已確認</option>
+                <option value="unbooked">尚未預約</option>
+                <option value="flexible">彈性安排</option>
+                <option value="cancelled">取消</option>
+              </select>
+            </label>
+            <label>訂房連結<input id="lodging-link" name="lodgingLink" type="url" inputmode="url" placeholder="https://"></label>
+            <label class="private-field">地址<input id="lodging-address" name="lodgingAddress"><small>僅此裝置</small></label>
+            <label class="private-field">費用<input id="lodging-price" name="lodgingPrice"><small>僅此裝置</small></label>
+            <label class="private-field">訂位編號<input id="lodging-booking" name="lodgingBooking"><small>僅此裝置</small></label>
+            <label class="private-field">私人備註<input id="lodging-note" name="lodgingNote"><small>僅此裝置</small></label>
+          </div>
+        </fieldset>
+
+        <label class="span-full">交通
+          <textarea id="day-transport" name="transport" rows="4" placeholder="每行一項：路線 | confirmed | https://"></textarea>
+          <small>狀態可用 confirmed、unbooked、flexible、cancelled</small>
+        </label>
+        <label class="span-full">門票
+          <textarea id="day-tickets" name="tickets" rows="4" placeholder="每行一項：門票名稱 | unbooked | https://"></textarea>
+        </label>
+        <label class="span-full">提醒
+          <textarea id="day-reminders" name="reminders" rows="3" placeholder="每行一項提醒"></textarea>
+        </label>
+        <label class="span-full">備案
+          <textarea id="day-alternatives" name="alternatives" rows="3" placeholder="每行一項備案"></textarea>
+        </label>
+      </div>
+
+      <p id="form-error" class="form-error" role="alert"></p>
+      <div class="dialog-actions">
+        <button class="secondary-button" id="cancel-editor" type="button">取消</button>
+        <button class="primary-button" type="submit" value="save">儲存</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <script type="module" src="./src/app.js"></script>
+</body>
+</html>
